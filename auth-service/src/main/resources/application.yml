@@ -9,5 +9,5 @@ spring:
     url: jdbc:postgresql://localhost:5432/java6AUTHDB
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
