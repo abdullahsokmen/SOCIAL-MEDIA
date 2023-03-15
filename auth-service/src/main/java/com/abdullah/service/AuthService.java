@@ -6,6 +6,7 @@ import com.abdullah.dto.request.RegisterRequestDto;
 import com.abdullah.dto.response.RegisterResponseDto;
 import com.abdullah.exception.AuthManagerException;
 import com.abdullah.exception.ErrorType;
+import com.abdullah.manager.IUserManager;
 import com.abdullah.mapper.IAuthMapper;
 import com.abdullah.repository.IAuthRepository;
 import com.abdullah.repository.entity.Auth;
@@ -21,22 +22,19 @@ import java.util.Optional;
 public class AuthService extends ServiceManager<Auth,Long> {
 
     private final IAuthRepository authRepository;
+    private final IUserManager userManager;
 
-    public AuthService(IAuthRepository authRepository){
+    public AuthService(IAuthRepository authRepository, IUserManager userManager){
         super(authRepository);
         this.authRepository=authRepository;
+        this.userManager = userManager;
     }
 
     public RegisterResponseDto register(RegisterRequestDto dto) {
         Auth auth= IAuthMapper.INSTANCE.toAuth(dto);
         auth.setActivationCode(CodeGenerator.generateCode());
-        try {
             save(auth);
-        }catch (Exception e){
-            e.printStackTrace();
-            throw new DataIntegrityViolationException("");
-        }
-
+        userManager.createUser(IAuthMapper.INSTANCE.toNewCreateUserRequestDto(auth));
         RegisterResponseDto registerResponseDto=IAuthMapper.INSTANCE.toRegisterResponseDto(auth);
         return registerResponseDto;
     }
@@ -57,6 +55,7 @@ public class AuthService extends ServiceManager<Auth,Long> {
         if (dto.getActivationCode().equals(auth.get().getActivationCode())){
             auth.get().setStatus(EStatus.ACTIVE);
             update(auth.get());
+            userManager.activateStatus(auth.get().getId());
             return true;
         }else {
             throw new AuthManagerException(ErrorType.ACTIVATE_CODE_ERROR);
