@@ -5,7 +5,9 @@ import com.abdullah.dto.request.LoginRequestDto;
 import com.abdullah.dto.request.RegisterRequestDto;
 import com.abdullah.dto.response.RegisterResponseDto;
 import com.abdullah.repository.entity.Auth;
+import com.abdullah.repository.enums.ERole;
 import com.abdullah.service.AuthService;
+import com.abdullah.utility.JwtTokenManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +21,7 @@ import java.util.List;
 @RequestMapping(AUTH)
 public class AuthController {
     private final AuthService authService;
+    private final JwtTokenManager tokenManager;
 
     @PostMapping(REGISTER)
     public ResponseEntity<RegisterResponseDto> register(@RequestBody @Valid RegisterRequestDto dto){
@@ -26,7 +29,7 @@ public class AuthController {
     }
 
     @PostMapping(LOGIN)
-    public ResponseEntity<?> login(@RequestBody LoginRequestDto dto){
+    public ResponseEntity<String> login(@RequestBody LoginRequestDto dto){
             return ResponseEntity.ok(authService.login(dto));
     }
 
@@ -38,5 +41,25 @@ public class AuthController {
     @GetMapping(FINDALL)
     public ResponseEntity<List<Auth>>findAll(){
         return ResponseEntity.ok(authService.findAll());
+    }
+
+    @GetMapping("/createtoken")
+    public ResponseEntity<String>createToken(Long id, ERole role){
+       return ResponseEntity.ok(tokenManager.createToken(id, role).get());
+    }
+
+    @GetMapping("/createtoken2")
+    public ResponseEntity<String>createToken2(Long id){
+        return ResponseEntity.ok(tokenManager.createToken(id).get());
+    }
+
+    @GetMapping("/getidfromtoken")
+    public ResponseEntity<Long>getIdFromToken(String token){
+        return ResponseEntity.ok(tokenManager.getIdFromToken(token).get());
+    }
+
+    @GetMapping("/getrolefromtoken")
+    public ResponseEntity<String>getRoleFromToken(String token){
+        return ResponseEntity.ok(tokenManager.getRoleFromToken(token).get());
     }
 }

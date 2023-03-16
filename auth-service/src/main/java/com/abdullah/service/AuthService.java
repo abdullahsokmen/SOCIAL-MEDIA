@@ -12,8 +12,8 @@ import com.abdullah.repository.IAuthRepository;
 import com.abdullah.repository.entity.Auth;
 import com.abdullah.repository.enums.EStatus;
 import com.abdullah.utility.CodeGenerator;
+import com.abdullah.utility.JwtTokenManager;
 import com.abdullah.utility.ServiceManager;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -23,11 +23,13 @@ public class AuthService extends ServiceManager<Auth,Long> {
 
     private final IAuthRepository authRepository;
     private final IUserManager userManager;
+    private final JwtTokenManager tokenManager;
 
-    public AuthService(IAuthRepository authRepository, IUserManager userManager){
+    public AuthService(IAuthRepository authRepository, IUserManager userManager, JwtTokenManager tokenManager){
         super(authRepository);
         this.authRepository=authRepository;
         this.userManager = userManager;
+        this.tokenManager = tokenManager;
     }
 
     public RegisterResponseDto register(RegisterRequestDto dto) {
@@ -39,12 +41,16 @@ public class AuthService extends ServiceManager<Auth,Long> {
         return registerResponseDto;
     }
 
-    public Boolean login(LoginRequestDto dto) {
+    public String login(LoginRequestDto dto) {
         Optional<Auth>auth=authRepository.findOptionalByUsernameAndPassword(dto.getUsername(), dto.getPassword());
         if (auth.isEmpty()){
             throw new AuthManagerException(ErrorType.LOGIN_ERROR);
         }
-        return true;
+        if (!auth.get().getStatus().equals(EStatus.ACTIVE)){
+            throw new AuthManagerException(ErrorType.ACCOUNT_NOT_ACTIVE);
+        }
+        return tokenManager.createToken(auth.get().getId(),auth.get().getRole())
+                .orElseThrow(()->{throw new AuthManagerException(ErrorType.TOKEN_NOT_CREATED);});
     }
 
     public Boolean activateStatus(ActivateRequestDto dto) {

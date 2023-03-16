@@ -11,7 +11,10 @@ public enum ErrorType {
     LOGIN_ERROR(4110,"Kullanıcı adı veya şifre hatalı!",HttpStatus.BAD_REQUEST),
     USERNAME_DUPLICATE(4111,"Böyle bir kullanıcı adı mevcuttur",HttpStatus.BAD_REQUEST),
     USER_NOT_FOUND(4112,"Böyle bir kullanıcı bulunamadı",HttpStatus.BAD_REQUEST),
-    ACTIVATE_CODE_ERROR(4113,"Aktivasyon kodu hatası",HttpStatus.BAD_REQUEST)
+    ACTIVATE_CODE_ERROR(4113,"Aktivasyon kodu hatası",HttpStatus.BAD_REQUEST),
+    INVALID_TOKEN(4114,"Geçersiz token",HttpStatus.BAD_REQUEST),
+    ACCOUNT_NOT_ACTIVE(4115,"Hesap aktive edilmemiştir",HttpStatus.FORBIDDEN),
+    TOKEN_NOT_CREATED(4116,"Token olusturulamadi",HttpStatus.FORBIDDEN)
 
     ;
 
