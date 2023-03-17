@@ -1,8 +1,6 @@
 package com.abdullah.controller;
 
-import com.abdullah.dto.request.ActivateRequestDto;
-import com.abdullah.dto.request.LoginRequestDto;
-import com.abdullah.dto.request.RegisterRequestDto;
+import com.abdullah.dto.request.*;
 import com.abdullah.dto.response.RegisterResponseDto;
 import com.abdullah.repository.entity.Auth;
 import com.abdullah.repository.enums.ERole;
@@ -62,4 +60,17 @@ public class AuthController {
     public ResponseEntity<String>getRoleFromToken(String token){
         return ResponseEntity.ok(tokenManager.getRoleFromToken(token).get());
     }
+
+    @PutMapping("/updateemailorusername")
+    public ResponseEntity<Boolean>updateEmailOrUsername(@RequestBody UpdateEmailOrUsernameRequestDto dto){
+        return ResponseEntity.ok(authService.updateEmailOrUsername(dto));
+    }
+
+    @DeleteMapping(DELETEBYID)
+    public ResponseEntity<Boolean>delete(Long id){
+        return ResponseEntity.ok(authService.delete(id));
+    }
+
+
+
 }

@@ -9,13 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserProfileUpdateRequestDto {
-    private String token;
+public class DeleteUserProfileRequestDto {
 
-    private String email;
     private String username;
-    private String phone;
-    private String avatar;
-    private String adress;
-    private String about;
+    private Long id;
+
 }

@@ -1,8 +1,10 @@
 package com.abdullah.service;
 
+import com.abdullah.constant.ApiUrls;
 import com.abdullah.dto.request.ActivateRequestDto;
 import com.abdullah.dto.request.LoginRequestDto;
 import com.abdullah.dto.request.RegisterRequestDto;
+import com.abdullah.dto.request.UpdateEmailOrUsernameRequestDto;
 import com.abdullah.dto.response.RegisterResponseDto;
 import com.abdullah.exception.AuthManagerException;
 import com.abdullah.exception.ErrorType;
@@ -67,4 +69,27 @@ public class AuthService extends ServiceManager<Auth,Long> {
             throw new AuthManagerException(ErrorType.ACTIVATE_CODE_ERROR);
         }
     }
+
+    public Boolean updateEmailOrUsername(UpdateEmailOrUsernameRequestDto dto) {
+        Optional<Auth> auth=authRepository.findById(dto.getAuthId());
+        if (auth.isEmpty()){
+            throw new AuthManagerException(ErrorType.USER_NOT_FOUND);
+        }
+        auth.get().setUsername(dto.getUsername());
+        auth.get().setEmail(dto.getEmail());
+        update(auth.get());
+        return true;
+    }
+
+    public Boolean delete(Long id){
+        Optional<Auth>auth=findById(id);
+        if (auth.isEmpty()){
+            throw new AuthManagerException(ErrorType.USER_NOT_FOUND);
+        }
+        auth.get().setStatus(EStatus.DELETED);
+        update(auth.get());
+        userManager.delete(id);
+        return true;
+    }
+
 }

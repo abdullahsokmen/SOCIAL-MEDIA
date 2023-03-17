@@ -1,5 +1,6 @@
 package com.abdullah.controller;
 
+import com.abdullah.dto.request.DeleteUserProfileRequestDto;
 import com.abdullah.dto.request.NewCreateUserRequestDto;
 import com.abdullah.dto.request.UserProfileUpdateRequestDto;
 import com.abdullah.repository.entity.UserProfile;
@@ -33,6 +34,12 @@ public class UserProfileController {
     public ResponseEntity<Boolean>update(@RequestBody UserProfileUpdateRequestDto dto){
         return ResponseEntity.ok(userProfileService.update(dto));
     }
+
+    @DeleteMapping(DELETEBYID)
+    public ResponseEntity<Boolean>delete(@RequestParam Long authId){
+        return ResponseEntity.ok(userProfileService.delete(authId));
+    }
+
 
 
 }
