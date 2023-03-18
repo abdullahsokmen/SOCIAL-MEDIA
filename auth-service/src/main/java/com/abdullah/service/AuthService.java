@@ -17,6 +17,7 @@ import com.abdullah.utility.CodeGenerator;
 import com.abdullah.utility.JwtTokenManager;
 import com.abdullah.utility.ServiceManager;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -34,11 +35,16 @@ public class AuthService extends ServiceManager<Auth,Long> {
         this.tokenManager = tokenManager;
     }
 
+    @Transactional//exception durumunda tüm islemleri geri alir bu anatosyon
     public RegisterResponseDto register(RegisterRequestDto dto) {
         Auth auth= IAuthMapper.INSTANCE.toAuth(dto);
         auth.setActivationCode(CodeGenerator.generateCode());
             save(auth);
-        userManager.createUser(IAuthMapper.INSTANCE.toNewCreateUserRequestDto(auth));
+            try {
+                userManager.createUser(IAuthMapper.INSTANCE.toNewCreateUserRequestDto(auth));
+            }catch (Exception exception){
+                throw new AuthManagerException(ErrorType.BAD_REQUEST);
+            }
         RegisterResponseDto registerResponseDto=IAuthMapper.INSTANCE.toRegisterResponseDto(auth);
         return registerResponseDto;
     }
@@ -81,6 +87,7 @@ public class AuthService extends ServiceManager<Auth,Long> {
         return true;
     }
 
+    @Transactional
     public Boolean delete(Long id){
         Optional<Auth>auth=findById(id);
         if (auth.isEmpty()){
