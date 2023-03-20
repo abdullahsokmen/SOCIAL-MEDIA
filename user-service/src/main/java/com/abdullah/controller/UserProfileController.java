@@ -40,6 +40,11 @@ public class UserProfileController {
         return ResponseEntity.ok(userProfileService.delete(authId));
     }
 
+    @GetMapping("/findbyusername")
+    public ResponseEntity<UserProfile>findByUsername(@RequestParam String username){
+        return ResponseEntity.ok(userProfileService.findByUsername(username));
+    }
+
 
 
 }

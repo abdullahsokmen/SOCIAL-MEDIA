@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface IUserProfileRepository extends JpaRepository<UserProfile,Long> {
 
     Optional<UserProfile>findOptionalByAuthId(Long authId);
+    Optional<UserProfile>findOptionalByUsernameIgnoreCase(String username);
 }

@@ -12,6 +12,8 @@ import com.abdullah.repository.entity.UserProfile;
 import com.abdullah.repository.enums.EStatus;
 import com.abdullah.utility.JwtTokenManager;
 import com.abdullah.utility.ServiceManager;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -22,13 +24,15 @@ public class UserProfileService extends ServiceManager<UserProfile,Long> {
     private final IUserProfileRepository repository;
     private final JwtTokenManager jwtTokenManager;
     private final IAuthManager authManager;
+    private final CacheManager cacheManager;
 
 
-    public UserProfileService(IUserProfileRepository repository, JwtTokenManager jwtTokenManager, IAuthManager authManager) {
+    public UserProfileService(IUserProfileRepository repository, JwtTokenManager jwtTokenManager, IAuthManager authManager, CacheManager cacheManager) {
         super(repository);
         this.repository = repository;
         this.jwtTokenManager = jwtTokenManager;
         this.authManager = authManager;
+        this.cacheManager = cacheManager;
     }
 
     public Boolean createUser(NewCreateUserRequestDto dto) {
@@ -60,6 +64,7 @@ public class UserProfileService extends ServiceManager<UserProfile,Long> {
         if (userProfile.isEmpty()) {
             throw new UserManagerException(ErrorType.USER_NOT_FOUND);
         }
+        cacheManager.getCache("findbyusername").evict(userProfile.get().getUsername().toLowerCase());
         if (!dto.getUsername().equals(userProfile.get().getUsername()) || !dto.getEmail().equals(userProfile.get().getEmail())) {
             userProfile.get().setUsername(dto.getUsername());
             userProfile.get().setEmail(dto.getEmail());
@@ -83,5 +88,13 @@ public class UserProfileService extends ServiceManager<UserProfile,Long> {
         userProfile.get().setEStatus(EStatus.DELETED);
         update(userProfile.get());
         return true;
+    }
+     @Cacheable(value = "findbyusername",key = "#username.toLowerCase()")
+    public UserProfile findByUsername(String username){
+        Optional<UserProfile>userProfile=repository.findOptionalByUsernameIgnoreCase(username);
+        if (userProfile.isEmpty()){
+            throw new UserManagerException(ErrorType.USER_NOT_FOUND);
+        }
+        return userProfile.get();
     }
 }

@@ -7,6 +7,9 @@ import com.abdullah.repository.enums.ERole;
 import com.abdullah.service.AuthService;
 import com.abdullah.utility.JwtTokenManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import static com.abdullah.constant.ApiUrls.*;
@@ -20,6 +23,7 @@ import java.util.List;
 public class AuthController {
     private final AuthService authService;
     private final JwtTokenManager tokenManager;
+    private final CacheManager cacheManager;
 
     @PostMapping(REGISTER)
     public ResponseEntity<RegisterResponseDto> register(@RequestBody @Valid RegisterRequestDto dto){
@@ -69,6 +73,34 @@ public class AuthController {
     @DeleteMapping(DELETEBYID)
     public ResponseEntity<Boolean>delete(Long id){
         return ResponseEntity.ok(authService.delete(id));
+    }
+
+    @GetMapping("/redis")
+    @Cacheable(value = "redisexample")
+    public String redisExample(String value){
+        try {
+            Thread.sleep(2000L);
+            return value;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/redisdelete")
+    @CacheEvict(cacheNames = "redisexample",allEntries = true)
+    public void redisDelete(){
+    }
+
+    @GetMapping("/redisdelete2")
+    public Boolean redisDelete2(){
+        try {
+          //  cacheManager.getCache("redisexample").clear();//ayni isimle cachelenmis butun verileri siler
+            cacheManager.getCache("redisexample").evict("mustafa");//sadece mustafalari silecek
+            return true;
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            return false;
+        }
     }
 
 
