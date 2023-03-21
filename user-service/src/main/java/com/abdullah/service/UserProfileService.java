@@ -7,16 +7,21 @@ import com.abdullah.exception.ErrorType;
 import com.abdullah.exception.UserManagerException;
 import com.abdullah.manager.IAuthManager;
 import com.abdullah.mapper.IUserMapper;
+import com.abdullah.rabbitmq.model.RegisterModel;
 import com.abdullah.repository.IUserProfileRepository;
 import com.abdullah.repository.entity.UserProfile;
 import com.abdullah.repository.enums.EStatus;
 import com.abdullah.utility.JwtTokenManager;
 import com.abdullah.utility.ServiceManager;
+import org.apache.catalina.User;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserProfileService extends ServiceManager<UserProfile,Long> {
@@ -41,6 +46,15 @@ public class UserProfileService extends ServiceManager<UserProfile,Long> {
             return true;
         }catch (Exception e){
            throw new UserManagerException(ErrorType.USER_NOT_CREATED);
+        }
+
+    }
+    public Boolean createUserWithRabbitMq(RegisterModel model) {
+        try {
+            save(IUserMapper.INSTANCE.toUserProfile(model));
+            return true;
+        }catch (Exception e){
+            throw new UserManagerException(ErrorType.USER_NOT_CREATED);
         }
 
     }
@@ -96,5 +110,17 @@ public class UserProfileService extends ServiceManager<UserProfile,Long> {
             throw new UserManagerException(ErrorType.USER_NOT_FOUND);
         }
         return userProfile.get();
+    }
+
+    @Cacheable(value = "findbyrole",key = "#role.toUpperCase()")
+    public List<UserProfile> findByRole(String role){
+        // ResponseEntity<List<Long>>authIds2=authManager.findByRole(role);
+        List<Long>authIds= authManager.findByRole(role).getBody();//icinden gelen degeri aliyoruz getbody ile
+
+        return authIds.stream().map(x-> repository.findOptionalByAuthId(x)
+                .orElseThrow(()->{
+                    throw new UserManagerException(ErrorType.USER_NOT_FOUND);
+                })).collect(Collectors.toList());
+
     }
 }

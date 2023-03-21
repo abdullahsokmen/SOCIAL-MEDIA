@@ -14,7 +14,8 @@ public enum ErrorType {
     ACTIVATE_CODE_ERROR(4113,"Aktivasyon kodu hatası",HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(4114,"Geçersiz token",HttpStatus.BAD_REQUEST),
     ACCOUNT_NOT_ACTIVE(4115,"Hesap aktive edilmemiştir",HttpStatus.FORBIDDEN),
-    TOKEN_NOT_CREATED(4116,"Token olusturulamadi",HttpStatus.FORBIDDEN)
+    TOKEN_NOT_CREATED(4116,"Token olusturulamadi",HttpStatus.FORBIDDEN),
+    ROLE_NOT_CREATED(4117,"Böyle bir kullanıcı rolü bulunamadı",HttpStatus.FORBIDDEN)
 
     ;
 

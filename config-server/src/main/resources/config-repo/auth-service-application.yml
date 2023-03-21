@@ -16,9 +16,19 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: user
+    password: root
 
 
 jwt:
   secretkey: ${java6secretkey}
   audience: ${java6audience}
   issuer: ${java6issuer}
+
+rabbitmq:
+  exchange-auth: auth-exchange
+  registerKey: register-key
+  queueRegister: register-queue
