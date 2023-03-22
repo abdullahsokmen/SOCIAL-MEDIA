@@ -9,6 +9,7 @@ import com.abdullah.exception.AuthManagerException;
 import com.abdullah.exception.ErrorType;
 import com.abdullah.manager.IUserManager;
 import com.abdullah.mapper.IAuthMapper;
+import com.abdullah.rabbitmq.producer.RegisterMailProducer;
 import com.abdullah.rabbitmq.producer.RegisterProducer;
 import com.abdullah.repository.IAuthRepository;
 import com.abdullah.repository.entity.Auth;
@@ -34,14 +35,16 @@ public class AuthService extends ServiceManager<Auth,Long> {
     private final JwtTokenManager tokenManager;
     private final CacheManager cacheManager;
     private final RegisterProducer registerProducer;
+    private final RegisterMailProducer mailProducer;
 
-    public AuthService(IAuthRepository authRepository, IUserManager userManager, JwtTokenManager tokenManager, CacheManager cacheManager, RegisterProducer registerProducer){
+    public AuthService(IAuthRepository authRepository, IUserManager userManager, JwtTokenManager tokenManager, CacheManager cacheManager, RegisterProducer registerProducer, RegisterMailProducer mailProducer){
         super(authRepository);
         this.authRepository=authRepository;
         this.userManager = userManager;
         this.tokenManager = tokenManager;
         this.cacheManager = cacheManager;
         this.registerProducer = registerProducer;
+        this.mailProducer = mailProducer;
     }
 
     @Transactional//exception durumunda tüm islemleri geri alir bu anatosyon
@@ -68,7 +71,7 @@ public class AuthService extends ServiceManager<Auth,Long> {
             save(auth);
             //rabbitmq ile haberlesme saglanacak
             registerProducer.sendNewUser(IAuthMapper.INSTANCE.toRegisterModel(auth));
-
+            mailProducer.sendActivationCode(IAuthMapper.INSTANCE.toRegisterMailModel(auth));
             cacheManager.getCache("findbyrole").evict(auth.getRole().toString().toUpperCase());
         }catch (Exception exception){
             throw new AuthManagerException(ErrorType.BAD_REQUEST);

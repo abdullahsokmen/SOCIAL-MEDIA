@@ -3,6 +3,7 @@ package com.abdullah.mapper;
 import com.abdullah.dto.request.NewCreateUserRequestDto;
 import com.abdullah.dto.request.RegisterRequestDto;
 import com.abdullah.dto.response.RegisterResponseDto;
+import com.abdullah.rabbitmq.model.RegisterMailModel;
 import com.abdullah.rabbitmq.model.RegisterModel;
 import com.abdullah.repository.entity.Auth;
 import org.mapstruct.Mapper;
@@ -21,4 +22,6 @@ public interface IAuthMapper {
     NewCreateUserRequestDto toNewCreateUserRequestDto(final Auth auth);
     @Mapping(source = "id",target = "authId")
     RegisterModel toRegisterModel(final Auth auth);
+
+    RegisterMailModel toRegisterMailModel(final Auth auth);
 }
