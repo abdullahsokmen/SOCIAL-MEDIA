@@ -3,6 +3,7 @@ package com.abdullah.mapper;
 import com.abdullah.dto.request.NewCreateUserRequestDto;
 import com.abdullah.dto.request.UpdateEmailOrUsernameRequestDto;
 import com.abdullah.dto.request.UserProfileUpdateRequestDto;
+import com.abdullah.rabbitmq.model.RegisterElasticModel;
 import com.abdullah.rabbitmq.model.RegisterModel;
 import com.abdullah.repository.entity.UserProfile;
 import org.mapstruct.Mapper;
@@ -21,6 +22,8 @@ public interface IUserMapper {
     NewCreateUserRequestDto toNewCreateUserRequestDto(final RegisterModel model);
 
     UpdateEmailOrUsernameRequestDto toUpdateEmailOrUsernameRequestDto(final UserProfileUpdateRequestDto dto);
+
+    RegisterElasticModel toRegisterElasticModel(final UserProfile userProfile);
 
 
 

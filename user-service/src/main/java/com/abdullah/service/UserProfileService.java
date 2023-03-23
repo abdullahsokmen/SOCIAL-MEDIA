@@ -8,15 +8,14 @@ import com.abdullah.exception.UserManagerException;
 import com.abdullah.manager.IAuthManager;
 import com.abdullah.mapper.IUserMapper;
 import com.abdullah.rabbitmq.model.RegisterModel;
+import com.abdullah.rabbitmq.producer.RegisterProducer;
 import com.abdullah.repository.IUserProfileRepository;
 import com.abdullah.repository.entity.UserProfile;
 import com.abdullah.repository.enums.EStatus;
 import com.abdullah.utility.JwtTokenManager;
 import com.abdullah.utility.ServiceManager;
-import org.apache.catalina.User;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,14 +29,16 @@ public class UserProfileService extends ServiceManager<UserProfile,String> {
     private final JwtTokenManager jwtTokenManager;
     private final IAuthManager authManager;
     private final CacheManager cacheManager;
+    private final RegisterProducer registerProducer;
 
 
-    public UserProfileService(IUserProfileRepository repository, JwtTokenManager jwtTokenManager, IAuthManager authManager, CacheManager cacheManager) {
+    public UserProfileService(IUserProfileRepository repository, JwtTokenManager jwtTokenManager, IAuthManager authManager, CacheManager cacheManager, RegisterProducer registerProducer) {
         super(repository);
         this.repository = repository;
         this.jwtTokenManager = jwtTokenManager;
         this.authManager = authManager;
         this.cacheManager = cacheManager;
+        this.registerProducer = registerProducer;
     }
 
     public Boolean createUser(NewCreateUserRequestDto dto) {
@@ -51,7 +52,8 @@ public class UserProfileService extends ServiceManager<UserProfile,String> {
     }
     public Boolean createUserWithRabbitMq(RegisterModel model) {
         try {
-            save(IUserMapper.INSTANCE.toUserProfile(model));
+           UserProfile userProfile=save(IUserMapper.INSTANCE.toUserProfile(model));
+            registerProducer.sendNewUser(IUserMapper.INSTANCE.toRegisterElasticModel(userProfile));
             return true;
         }catch (Exception e){
             throw new UserManagerException(ErrorType.USER_NOT_CREATED);
