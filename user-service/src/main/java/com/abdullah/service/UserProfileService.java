@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class UserProfileService extends ServiceManager<UserProfile,Long> {
+public class UserProfileService extends ServiceManager<UserProfile,String> {
 
     private final IUserProfileRepository repository;
     private final JwtTokenManager jwtTokenManager;

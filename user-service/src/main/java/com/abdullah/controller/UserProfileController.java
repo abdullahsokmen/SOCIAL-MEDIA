@@ -51,6 +51,10 @@ public class UserProfileController {
     public ResponseEntity<List<UserProfile>>findByRole(@RequestParam String role){
         return ResponseEntity.ok(userProfileService.findByRole(role));
     }
+    @GetMapping(FINDALL)
+    public ResponseEntity<List<UserProfile>> findAll(){
+        return ResponseEntity.ok(userProfileService.findAll());
+    }
 
 
 

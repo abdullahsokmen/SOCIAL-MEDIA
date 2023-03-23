@@ -6,18 +6,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.*;
 
 @Data
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
+@Document
 public class UserProfile extends BaseEntity{
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+
+    @Id//spring frameworkten gelicek id
+    private String id;
     private Long authId;
     private String username;
     private String email;
@@ -26,7 +27,7 @@ public class UserProfile extends BaseEntity{
     private String adress;
     private String about;
 
-    @Enumerated(EnumType.STRING)
+
     @Builder.Default
     private EStatus eStatus=EStatus.PENDING;
 
