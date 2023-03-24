@@ -1,6 +1,6 @@
 package com.abdullah.manager;
 
-import com.abdullah.dto.request.DeleteUserProfileRequestDto;
+
 import com.abdullah.dto.request.NewCreateUserRequestDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;

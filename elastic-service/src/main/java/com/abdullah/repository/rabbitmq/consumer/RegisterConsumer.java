@@ -1,6 +1,6 @@
-package com.abdullah.rabbitmq.consumer;
+package com.abdullah.repository.rabbitmq.consumer;
 
-import com.abdullah.rabbitmq.model.RegisterElasticModel;
+import com.abdullah.repository.rabbitmq.model.RegisterElasticModel;
 
 import com.abdullah.service.UserProfileService;
 import lombok.RequiredArgsConstructor;

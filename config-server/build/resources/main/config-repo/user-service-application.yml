@@ -24,3 +24,9 @@ jwt:
   secretkey: ${java6secretkey}
   audience: ${java6audience}
   issuer: ${java6issuer}
+
+rabbitmq:
+  exchange-user: user-exchange
+  elasticregisterKey: elastic-register-key
+  queueregisterelastic: elastic-register-queue
+  queueRegister: register-queue

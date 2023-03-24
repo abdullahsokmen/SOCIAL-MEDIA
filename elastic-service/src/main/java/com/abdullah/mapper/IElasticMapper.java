@@ -1,6 +1,6 @@
 package com.abdullah.mapper;
 
-import com.abdullah.rabbitmq.model.RegisterElasticModel;
+import com.abdullah.repository.rabbitmq.model.RegisterElasticModel;
 import com.abdullah.repository.entity.UserProfile;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;

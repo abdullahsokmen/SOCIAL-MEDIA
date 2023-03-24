@@ -11,6 +11,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import static com.abdullah.constant.ApiUrls.*;
 
@@ -45,6 +46,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.activateStatus(dto));
     }
 
+    @PreAuthorize("hasAuthority('USER')")
     @GetMapping(FINDALL)
     public ResponseEntity<List<Auth>>findAll(){
         return ResponseEntity.ok(authService.findAll());
@@ -60,6 +62,9 @@ public class AuthController {
         return ResponseEntity.ok(tokenManager.createToken(id).get());
     }
 
+
+
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/getidfromtoken")
     public ResponseEntity<Long>getIdFromToken(String token){
         return ResponseEntity.ok(tokenManager.getIdFromToken(token).get());
@@ -69,6 +74,8 @@ public class AuthController {
     public ResponseEntity<String>getRoleFromToken(String token){
         return ResponseEntity.ok(tokenManager.getRoleFromToken(token).get());
     }
+
+
 
     @PutMapping("/updateemailorusername")
     public ResponseEntity<Boolean>updateEmailOrUsername(@RequestBody UpdateEmailOrUsernameRequestDto dto){
@@ -99,7 +106,6 @@ public class AuthController {
     @GetMapping("/redisdelete2")
     public Boolean redisDelete2(){
         try {
-          //  cacheManager.getCache("redisexample").clear();//ayni isimle cachelenmis butun verileri siler
             cacheManager.getCache("redisexample").evict("mustafa");//sadece mustafalari silecek
             return true;
         }catch (Exception e){
