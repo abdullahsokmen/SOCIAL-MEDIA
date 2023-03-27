@@ -1,5 +1,6 @@
 package com.abdullah.service;
 
+import com.abdullah.dto.request.ActivateStatusDto;
 import com.abdullah.dto.request.NewCreateUserRequestDto;
 import com.abdullah.dto.request.UpdateEmailOrUsernameRequestDto;
 import com.abdullah.dto.request.UserProfileUpdateRequestDto;
@@ -14,6 +15,7 @@ import com.abdullah.repository.entity.UserProfile;
 import com.abdullah.repository.enums.EStatus;
 import com.abdullah.utility.JwtTokenManager;
 import com.abdullah.utility.ServiceManager;
+import org.apache.el.parser.Token;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -61,8 +63,12 @@ public class UserProfileService extends ServiceManager<UserProfile,String> {
 
     }
 
-    public Boolean activateStatus(Long authId) {
-        Optional<UserProfile> userProfile=repository.findOptionalByAuthId(authId);
+    public Boolean activateStatus(String token) {
+        Optional<Long>authId=jwtTokenManager.getIdFromToken(token);
+        if (authId.isEmpty()){
+            throw new UserManagerException(ErrorType.INVALID_TOKEN);
+        }
+        Optional<UserProfile> userProfile=repository.findOptionalByAuthId(authId.get());
         if (userProfile.isEmpty()){
             throw new UserManagerException(ErrorType.USER_NOT_FOUND);
         }

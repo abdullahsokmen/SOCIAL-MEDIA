@@ -1,9 +1,6 @@
 package com.abdullah.service;
 
-import com.abdullah.dto.request.ActivateRequestDto;
-import com.abdullah.dto.request.LoginRequestDto;
-import com.abdullah.dto.request.RegisterRequestDto;
-import com.abdullah.dto.request.UpdateEmailOrUsernameRequestDto;
+import com.abdullah.dto.request.*;
 import com.abdullah.dto.response.RegisterResponseDto;
 import com.abdullah.exception.AuthManagerException;
 import com.abdullah.exception.ErrorType;
@@ -100,7 +97,8 @@ public class AuthService extends ServiceManager<Auth,Long> {
         if (dto.getActivationCode().equals(auth.get().getActivationCode())){
             auth.get().setStatus(EStatus.ACTIVE);
             update(auth.get());
-            userManager.activateStatus(auth.get().getId());
+            String token=tokenManager.createToken(auth.get().getId(),auth.get().getRole()).get();
+            userManager.activateStatus("Bearer "+token);
             return true;
         }else {
             throw new AuthManagerException(ErrorType.ACTIVATE_CODE_ERROR);

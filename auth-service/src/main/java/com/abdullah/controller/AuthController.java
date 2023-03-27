@@ -71,6 +71,7 @@ public class AuthController {
     }
 
     @GetMapping("/getrolefromtoken")
+
     public ResponseEntity<String>getRoleFromToken(String token){
         return ResponseEntity.ok(tokenManager.getRoleFromToken(token).get());
     }
