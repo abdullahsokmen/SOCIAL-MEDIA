@@ -1,4 +1,4 @@
-package com.abdullah.mapper;
+package com.abdullah.config.mapper;
 
 import com.abdullah.dto.request.NewCreateUserRequestDto;
 import com.abdullah.dto.request.UpdateEmailOrUsernameRequestDto;
@@ -24,6 +24,8 @@ public interface IUserMapper {
     UpdateEmailOrUsernameRequestDto toUpdateEmailOrUsernameRequestDto(final UserProfileUpdateRequestDto dto);
 
     RegisterElasticModel toRegisterElasticModel(final UserProfile userProfile);
+
+
 
 
 

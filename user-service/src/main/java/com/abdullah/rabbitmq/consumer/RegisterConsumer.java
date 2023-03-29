@@ -1,6 +1,5 @@
 package com.abdullah.rabbitmq.consumer;
 
-import com.abdullah.mapper.IUserMapper;
 import com.abdullah.rabbitmq.model.RegisterModel;
 import com.abdullah.service.UserProfileService;
 import lombok.RequiredArgsConstructor;

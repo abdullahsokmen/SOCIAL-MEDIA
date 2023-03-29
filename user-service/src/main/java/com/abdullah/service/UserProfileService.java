@@ -1,13 +1,12 @@
 package com.abdullah.service;
 
-import com.abdullah.dto.request.ActivateStatusDto;
 import com.abdullah.dto.request.NewCreateUserRequestDto;
 import com.abdullah.dto.request.UpdateEmailOrUsernameRequestDto;
 import com.abdullah.dto.request.UserProfileUpdateRequestDto;
 import com.abdullah.exception.ErrorType;
 import com.abdullah.exception.UserManagerException;
 import com.abdullah.manager.IAuthManager;
-import com.abdullah.mapper.IUserMapper;
+import com.abdullah.config.mapper.IUserMapper;
 import com.abdullah.rabbitmq.model.RegisterModel;
 import com.abdullah.rabbitmq.producer.RegisterProducer;
 import com.abdullah.repository.IUserProfileRepository;
@@ -15,7 +14,6 @@ import com.abdullah.repository.entity.UserProfile;
 import com.abdullah.repository.enums.EStatus;
 import com.abdullah.utility.JwtTokenManager;
 import com.abdullah.utility.ServiceManager;
-import org.apache.el.parser.Token;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -64,7 +62,7 @@ public class UserProfileService extends ServiceManager<UserProfile,String> {
     }
 
     public Boolean activateStatus(String token) {
-        Optional<Long>authId=jwtTokenManager.getIdFromToken(token);
+        Optional<Long>authId=jwtTokenManager.getIdFromToken(token.substring(7));
         if (authId.isEmpty()){
             throw new UserManagerException(ErrorType.INVALID_TOKEN);
         }
@@ -92,7 +90,7 @@ public class UserProfileService extends ServiceManager<UserProfile,String> {
             userProfile.get().setEmail(dto.getEmail());
             UpdateEmailOrUsernameRequestDto updateEmailOrUsernameRequestDto = IUserMapper.INSTANCE.toUpdateEmailOrUsernameRequestDto(dto);
             updateEmailOrUsernameRequestDto.setAuthId(authId.get());
-            authManager.updateEmailOrUsername(updateEmailOrUsernameRequestDto);
+            authManager.updateEmailOrUsername("Bearer "+dto.getToken(),updateEmailOrUsernameRequestDto);
         }
         userProfile.get().setPhone(dto.getPhone());
         userProfile.get().setAvatar(dto.getAvatar());
@@ -121,14 +119,18 @@ public class UserProfileService extends ServiceManager<UserProfile,String> {
     }
 
     @Cacheable(value = "findbyrole",key = "#role.toUpperCase()")
-    public List<UserProfile> findByRole(String role){
+    public List<UserProfile> findByRole(String role,String token){
         // ResponseEntity<List<Long>>authIds2=authManager.findByRole(role);
-        List<Long>authIds= authManager.findByRole(role).getBody();//icinden gelen degeri aliyoruz getbody ile
+        List<Long>authIds= authManager.findByRole(token,role).getBody();//icinden gelen degeri aliyoruz getbody ile
 
         return authIds.stream().map(x-> repository.findOptionalByAuthId(x)
                 .orElseThrow(()->{
                     throw new UserManagerException(ErrorType.USER_NOT_FOUND);
                 })).collect(Collectors.toList());
 
+    }
+
+    public Optional<UserProfile> findByAuthId(Long authId) {
+        return repository.findOptionalByAuthId(authId);
     }
 }
