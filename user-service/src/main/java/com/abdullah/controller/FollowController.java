@@ -1,13 +1,14 @@
 package com.abdullah.controller;
 
 import com.abdullah.dto.request.CreateFollowRequestDto;
+import com.abdullah.repository.entity.Follow;
 import com.abdullah.service.FollowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 import static com.abdullah.constant.ApiUrls.*;
 
 @RestController
@@ -22,5 +23,9 @@ public class FollowController {
 
         return ResponseEntity.ok(followService.createFollow(dto));
 
+    }
+    @GetMapping(FINDALL)
+    public ResponseEntity<List<Follow>>findAll(){
+        return ResponseEntity.ok(followService.findAll());
     }
 }

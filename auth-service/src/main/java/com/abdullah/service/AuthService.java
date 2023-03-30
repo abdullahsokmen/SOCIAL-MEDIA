@@ -16,6 +16,7 @@ import com.abdullah.utility.CodeGenerator;
 import com.abdullah.utility.JwtTokenManager;
 import com.abdullah.utility.ServiceManager;
 import org.springframework.cache.CacheManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,8 +34,9 @@ public class AuthService extends ServiceManager<Auth,Long> {
     private final CacheManager cacheManager;
     private final RegisterProducer registerProducer;
     private final RegisterMailProducer mailProducer;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthService(IAuthRepository authRepository, IUserManager userManager, JwtTokenManager tokenManager, CacheManager cacheManager, RegisterProducer registerProducer, RegisterMailProducer mailProducer){
+    public AuthService(IAuthRepository authRepository, IUserManager userManager, JwtTokenManager tokenManager, CacheManager cacheManager, RegisterProducer registerProducer, RegisterMailProducer mailProducer, PasswordEncoder passwordEncoder){
         super(authRepository);
         this.authRepository=authRepository;
         this.userManager = userManager;
@@ -42,6 +44,7 @@ public class AuthService extends ServiceManager<Auth,Long> {
         this.cacheManager = cacheManager;
         this.registerProducer = registerProducer;
         this.mailProducer = mailProducer;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional//exception durumunda tüm islemleri geri alir bu anatosyon
@@ -61,6 +64,7 @@ public class AuthService extends ServiceManager<Auth,Long> {
     }
     @Transactional//exception durumunda tüm islemleri geri alir bu anatosyon
     public RegisterResponseDto registerWithRabbitMq(RegisterRequestDto dto) {
+        dto.setPassword(passwordEncoder.encode(dto.getPassword()));
         Auth auth= IAuthMapper.INSTANCE.toAuth(dto);
         auth.setActivationCode(CodeGenerator.generateCode());
 
@@ -78,8 +82,10 @@ public class AuthService extends ServiceManager<Auth,Long> {
     }
 
     public String login(LoginRequestDto dto) {
-        Optional<Auth>auth=authRepository.findOptionalByUsernameAndPassword(dto.getUsername(), dto.getPassword());
-        if (auth.isEmpty()){
+        Optional<Auth>auth=authRepository.findOptionalByUsername(dto.getUsername());
+
+
+        if (auth.isEmpty() ||!passwordEncoder.matches(dto.getPassword(),auth.get().getPassword())){
             throw new AuthManagerException(ErrorType.LOGIN_ERROR);
         }
         if (!auth.get().getStatus().equals(EStatus.ACTIVE)){
@@ -98,7 +104,7 @@ public class AuthService extends ServiceManager<Auth,Long> {
             auth.get().setStatus(EStatus.ACTIVE);
             update(auth.get());
             String token=tokenManager.createToken(auth.get().getId(),auth.get().getRole()).get();
-            userManager.activateStatus("Bearer "+token);
+            userManager.activateStatus("Bearer "+ token);
             return true;
         }else {
             throw new AuthManagerException(ErrorType.ACTIVATE_CODE_ERROR);
