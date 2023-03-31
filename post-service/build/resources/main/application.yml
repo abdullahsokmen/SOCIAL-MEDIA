@@ -1,15 +1,8 @@
-server:
-  port: 7073
-
 spring:
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
-      username: java6user
-      password: root
-      database: postdb
-jwt:
-  secretkey: ${java6secretkey}
-  audience: ${java6audience}
-  issuer: ${java6issuer}
+  cloud:
+    config:
+      uri: ${configserver_url}
+  config:
+    import: "configserver:"
+  application:
+    name: post-service-application
